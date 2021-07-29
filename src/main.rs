@@ -1,13 +1,29 @@
-mod routes;
-
 #[macro_use]
 extern crate rocket;
 
-use rocket::{Build, Rocket};
+use rand::prelude::*;
+use rocket::{Build, build, Rocket};
+use rocket::serde::json::Json;
+
+mod core;
+
+#[get("/")]
+fn index() -> String {
+    let mut rng = rand::thread_rng();
+    format!("OK{:06}", rng.gen_range(0..0xffff))
+}
+
+#[get("/entities")]
+fn list_entities() -> Json<Vec<core::Entity>> {
+    Json(core::list_entities())
+}
 
 fn rocket() -> Rocket<Build> {
-    rocket::build()
-        .mount("/", routes![index])
+    build()
+        .mount("/", routes![
+            index,
+            list_entities
+        ])
 }
 
 #[rocket::main]
